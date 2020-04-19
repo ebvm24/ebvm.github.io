@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Elisa von Marschall</title>
+    <link>/post/</link>
+    <description>Recent content in Posts on Elisa von Marschall</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 18 Apr 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Impossible Distancing on Charleston Sidewalks</title>
+      <link>/post/impossible-distancing-on-charleston-sidewalks/</link>
+      <pubDate>Sat, 18 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/impossible-distancing-on-charleston-sidewalks/</guid>
+      <description>Since March 26, the City of Charleston has been under a “Shelter-in-Place” ordinance, encouraging Charlestonians to stay home except for essential trips (grocery store, doctor’s appointments, etc).</description>
+    </item>
+    
+  </channel>
+</rss>

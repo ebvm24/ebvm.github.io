@@ -1,0 +1,157 @@
+---
+title: Impossible Distancing on Charleston Sidewalks
+author: Elisa von Marschall
+date: '2020-04-18'
+slug: impossible-distancing-on-charleston-sidewalks
+categories: []
+tags:
+  - R
+  - leaflet
+draft: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(sp)
+library(sf)
+library(leaflet)
+library(measurements)
+library(units)
+
+```
+
+Since March 26, the City of Charleston [has been under a "Shelter-in-Place" ordinance](https://www.postandcourier.com/health/covid19/charleston-city-council-approves-stay-at-home-ordinance-with-broad-exceptions-for-business/article_0a29c94e-6de7-11ea-84b1-c3369b331f03.html), encouraging Charlestonians to stay home except for essential trips (grocery store, doctor's appointments, etc).
+
+There has been a noticable increase in pedestrian traffic as residents go for neighborhood walks, particularly given the recent good weather.  However, the social distancing [guidelines](https://www.cdc.gov/coronavirus/2019-ncov/prevent-getting-sick/social-distancing.html) recommend maintaining at least a six foot distance from others (especially from those not in the same family/living under the same roof).  In order to safely allow two pedestrians to pass each other, a sidewalk would reasonably need to be about eight feet wide, at a minimum.  In most of Charleston's neighborhood, the average sidewalk is less than 6 feet wide.
+
+Given the narrow nature of Charleston sidewalks, the Mayor and City Council should [consider](https://actionnetwork.org/petitions/open-streets-for-people) closing some neighborhood streets to vehicular traffic to allow pedestrians to safely practice social distancing and prevent further spread of Covid-19.
+
+## City of Charleston Data
+
+All data used for this analysis is from the City's [Open Data](https://data-charleston-sc.opendata.arcgis.com/) Initiative.  I used the [Edge of Pavement]((https://data-charleston-sc.opendata.arcgis.com/datasets/891cb19848294576befd55b5d7a551a0_13)) shapefiles, which track the pavement, sidewalks, driveways, etc, and the [Neighborhood Council](https://data-charleston-sc.opendata.arcgis.com/datasets/0bca39c9bd744b2a863bf0bd11c2d115_6) shapefiles to study sidewalks within the more residential parts of the city.
+
+```{r read_data, message=FALSE,results="hide"}
+pavement <- st_read('https://opendata.arcgis.com/datasets/891cb19848294576befd55b5d7a551a0_13.geojson')
+neighborhood_councils <- st_read('https://opendata.arcgis.com/datasets/0bca39c9bd744b2a863bf0bd11c2d115_6.geojson')
+
+```
+
+Each record of Edge of Pavement data is a separate section of pavement throughout the city, whether it's a sidewalk, driveway, unpaved parking lot, etc.
+
+## Calculating Sidewalk Width
+
+I have some concerns about the data itself, as it is comprised of several older data sources.  When I calculated the width of the sidewalk section in front of my house, I got 2.5 ft, but when I measured the width with a tape measure, it was 5 ft across.  I recorded similar numbers in front of my parents' house.  So, I created a sidewalk width metric and then, unscientifically, **doubled** it for every piece of sidewalk.  I wanted to give that data the benefit of the doubt. 
+
+I am not familiar enough with some of these neighborhoods to know how accurate the data is regarding the shape width, and I will defer to residents of those neighborhoods as to whether the city data is reasonable.  I did notice, for example, that South Windemere does not even have sidewalks in the traditional sense.  Driveways seem to be marked as the only sidewalks in the neighborhood, not even offering pedestrians a continuous safe place to walk from vehicular traffic.
+
+```{r calculate_distance, message=FALSE}
+pavement$area <- st_area(pavement) %>% set_units("ft2")
+pavement$length <- st_length(pavement) %>% set_units("ft")
+pavement <- pavement %>%
+  mutate(width = 2*(area/length))
+
+x <- pavement %>%
+  st_within(neighborhood_councils,sparse=F)
+x <- sapply(1:nrow(x), function(u) which(x[u,])[1])
+pavement$Neighborhood <-  neighborhood_councils$NAME[x]
+```
+
+## Average Sidewalk Width per Neighborhood Council
+
+Per Neighborhood Council, I calculatd the average width of sidewalk.  As noted above,the sidewalk width has been doubled from the shapefile to attempt to correct for inaccurate data.
+```{r neighborhood_width, warning=FALSE}
+ngbr_pmt_width <- pavement %>%
+  filter(TYPE == "SIDE") %>%
+  as.data.frame() %>%
+  select(-geometry) %>%
+  group_by(Neighborhood) %>%
+  summarize(avg_width = median(width, na.rm=TRUE)) %>%
+  ungroup()
+
+neighborhood_councils <- neighborhood_councils %>%
+  left_join(ngbr_pmt_width, by = c("NAME"="Neighborhood")) %>%
+  na.omit()
+
+width_palette = colorBin("viridis", bins = c(0,2,4,6,8,10))
+
+labels <- sprintf(
+  "ObjectID: %s<br/>
+  Average Sidewalk Width: %g ft<br/>",
+  neighborhood_councils$NAME,
+  round(neighborhood_councils$avg_width,1)) %>% 
+  lapply(htmltools::HTML)
+
+
+
+leaflet(neighborhood_councils,width="100%") %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons(opacity = 0.7,
+              label = labels,
+              labelOptions = labelOptions(
+                textsize = "15px",
+                direction = "auto"),
+              color = ~width_palette(avg_width)) %>%
+  addLegend(pal = width_palette,
+            values = ~avg_width,
+            opacity = 0.7,
+            title = "Avg. Sidewalk Width by Neighborhood Council")
+
+```
+
+*Even given the doubling in sidewalk width (discussed above), most neighborhoods' average sidewalk width is less than 6 feet.
+
+
+## How does each neighborhood compare?
+
+Lastly, if you look closely at each neighborhood, you can see the sidewalk bits, colored by their width.  
+
+```{r per_neighborhood, message=FALSE}
+sidewalk_map <- function(ngbr,color_palette){
+  ngbrhood <- neighborhood_councils %>%
+    filter(NAME == ngbr)
+  
+  ngbr_pavement <- pavement %>%
+    filter(st_within(pavement,ngbrhood,sparse=FALSE))
+
+  sidewalk <- ngbr_pavement %>% filter(TYPE=="SIDE")
+  
+  labels <- sprintf(
+    "ObjectID: %s<br/>
+    Calculated Length: %g ft<br/>
+    Calculated Area: %g ft<sup>2</sup><br/>
+    Calculated Width: %g ft",
+    sidewalk$OBJECTID,
+    round(sidewalk$length,1),
+    round(sidewalk$area,1),
+    round(sidewalk$width,1)
+  ) %>% lapply(htmltools::HTML)
+  
+  
+  m <- leaflet(ngbrhood,width="100%") %>%
+    addProviderTiles(providers$CartoDB.Positron) %>%
+    addPolygons(data = sidewalk,
+                opacity =1,
+                label = labels,
+                labelOptions = labelOptions(
+                  textsize = "15px",
+                  direction = "auto"),
+                color = ~color_palette(width)) %>%
+    addLegend(data = ngbr_pavement,
+              pal = color_palette,
+              values = ~width,
+              opacity = 1.0,
+              title = ngbr)
+  return(m)  
+}
+
+width_pal <- colorBin("viridis", bins = c(0,3,6,9,15,24,39))
+sidewalk_map("Charlestowne",width_pal)
+sidewalk_map("Ansonborough",width_pal)
+sidewalk_map("Wagener Terrace",width_pal)
+sidewalk_map("Byrnes Downs",width_pal)
+sidewalk_map("South Windemere", width_pal)
+
+```
+
+For the forseeable future, a reasonable solution to keep Charlestonians safe is to close some neighborhood streets to vehicular traffic to allow pedestrians to walk a safe distance from one another.
