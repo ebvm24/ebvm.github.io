@@ -97,7 +97,8 @@ leaflet(neighborhood_councils,width="100%") %>%
   addLegend(pal = width_palette,
             values = ~avg_width,
             opacity = 0.7,
-            title = "Avg. Sidewalk Width by Neighborhood Council")
+            title = "Avg. Sidewalk Width by Neighborhood Council",
+            labFormat = labelFormat(suffix = " ft"))
 
 ```
 
@@ -143,7 +144,8 @@ sidewalk_map <- function(ngbr,color_palette){
               pal = color_palette,
               values = ~width,
               opacity = 1.0,
-              title = ngbr)
+              title = ngbr,
+              labFormat = labelFormat(suffix = " ft"))
   return(m)  
 }
 
