@@ -161,4 +161,4 @@ sidewalk_map("South Windemere", width_pal)
 
 For the forseeable future, a reasonable solution to keep Charlestonians safe is to close some neighborhood streets to vehicular traffic to allow pedestrians to walk a safe distance from one another.
 
-**Code used to generate maps [here](https://github.com/ebvm24/ebvm24.github.io/blob/master/post/2020-04-18-impossible-distancing-on-charleston-sidewalks.Rmd).**
+*Code used to generate maps [here](https://github.com/ebvm24/ebvm24.github.io/blob/master/post/2020-04-18-impossible-distancing-on-charleston-sidewalks.Rmd).*
