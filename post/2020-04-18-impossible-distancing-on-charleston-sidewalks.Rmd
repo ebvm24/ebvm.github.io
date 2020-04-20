@@ -21,7 +21,7 @@ library(units)
 
 ```
 
-![One of the few places to walk a safe distance from other pedestrians, Colonial Lake, is closed during the Shelter-in-Place](/post/2020-04-18-impossible-distancing-on-charleston-sidewalks_files/colonial_lake.PNG)
+![*One of the few places to maintain a safe distance from other pedestrians, Colonial Lake is closed during the Shelter-in-Place.*](/post/2020-04-18-impossible-distancing-on-charleston-sidewalks_files/colonial_lake.PNG)
 
 Since March 26, the City of Charleston has been under a ["Shelter-in-Place" ordinance](https://www.postandcourier.com/health/covid19/charleston-city-council-approves-stay-at-home-ordinance-with-broad-exceptions-for-business/article_0a29c94e-6de7-11ea-84b1-c3369b331f03.html) with residents encouraged to stay home except for essential trips (grocery store, doctor's appointments, etc) and outdoor exercise.
 
@@ -158,3 +158,5 @@ sidewalk_map("South Windemere", width_pal)
 
 
 For the forseeable future, a reasonable solution to keep Charlestonians safe is to close some neighborhood streets to vehicular traffic to allow pedestrians to walk a safe distance from one another.
+
+**Code used to generate maps [here](https://github.com/ebvm24/ebvm24.github.io/blob/master/post/2020-04-18-impossible-distancing-on-charleston-sidewalks.Rmd).**
