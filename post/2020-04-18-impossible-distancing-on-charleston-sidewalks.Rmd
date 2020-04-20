@@ -11,7 +11,7 @@ draft: yes
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(sp)
 library(sf)
@@ -21,15 +21,17 @@ library(units)
 
 ```
 
-Since March 26, the City of Charleston [has been under a "Shelter-in-Place" ordinance](https://www.postandcourier.com/health/covid19/charleston-city-council-approves-stay-at-home-ordinance-with-broad-exceptions-for-business/article_0a29c94e-6de7-11ea-84b1-c3369b331f03.html), encouraging Charlestonians to stay home except for essential trips (grocery store, doctor's appointments, etc).
+![One of the few places to walk a safe distance from other pedestrians, Colonial Lake, is closed during the Shelter-in-Place](/post/2020-04-18-impossible-distancing-on-charleston-sidewalks_files/colonial_lake.PNG)
 
-There has been a noticable increase in pedestrian traffic as residents go for neighborhood walks, particularly given the recent good weather.  However, the social distancing [guidelines](https://www.cdc.gov/coronavirus/2019-ncov/prevent-getting-sick/social-distancing.html) recommend maintaining at least a six foot distance from others (especially from those not in the same family/living under the same roof).  In order to safely allow two pedestrians to pass each other, a sidewalk would reasonably need to be about eight feet wide, at a minimum.  In most of Charleston's neighborhood, the average sidewalk is less than 6 feet wide.
+Since March 26, the City of Charleston has been under a ["Shelter-in-Place" ordinance](https://www.postandcourier.com/health/covid19/charleston-city-council-approves-stay-at-home-ordinance-with-broad-exceptions-for-business/article_0a29c94e-6de7-11ea-84b1-c3369b331f03.html) with residents encouraged to stay home except for essential trips (grocery store, doctor's appointments, etc) and outdoor exercise.
+
+There has been a noticable increase in pedestrian traffic as residents go for neighborhood walks, particularly given the recent good weather.  However, C.D.C. social distancing [guidelines](https://www.cdc.gov/coronavirus/2019-ncov/prevent-getting-sick/social-distancing.html) recommend maintaining at least a six foot distance from others (especially from those not in the same family/living under the same roof).  In order to safely allow two pedestrians to pass each other, a sidewalk would reasonably need to be at least eight feet wide, at a minimum.  In most of Charleston's neighborhoods, the average sidewalk is less than 6 feet wide.
 
 Given the narrow nature of Charleston sidewalks, the Mayor and City Council should [consider](https://actionnetwork.org/petitions/open-streets-for-people) closing some neighborhood streets to vehicular traffic to allow pedestrians to safely practice social distancing and prevent further spread of Covid-19.
 
 ## City of Charleston Data
 
-All data used for this analysis is from the City's [Open Data](https://data-charleston-sc.opendata.arcgis.com/) Initiative.  I used the [Edge of Pavement]((https://data-charleston-sc.opendata.arcgis.com/datasets/891cb19848294576befd55b5d7a551a0_13)) shapefiles, which track the pavement, sidewalks, driveways, etc, and the [Neighborhood Council](https://data-charleston-sc.opendata.arcgis.com/datasets/0bca39c9bd744b2a863bf0bd11c2d115_6) shapefiles to study sidewalks within the more residential parts of the city.
+All data used for this analysis is from the City's [Open Data](https://data-charleston-sc.opendata.arcgis.com/) Initiative.  I used the [Edge of Pavement]((https://data-charleston-sc.opendata.arcgis.com/datasets/891cb19848294576befd55b5d7a551a0_13)) shapefiles, which track the pavement, sidewalks, driveways, etc, and the [Neighborhood Council](https://data-charleston-sc.opendata.arcgis.com/datasets/0bca39c9bd744b2a863bf0bd11c2d115_6) shapefiles to focus on the more residential areas of the city.
 
 ```{r read_data, message=FALSE,results="hide"}
 pavement <- st_read('https://opendata.arcgis.com/datasets/891cb19848294576befd55b5d7a551a0_13.geojson')
@@ -41,9 +43,9 @@ Each record of Edge of Pavement data is a separate section of pavement throughou
 
 ## Calculating Sidewalk Width
 
-I have some concerns about the data itself, as it is comprised of several older data sources.  When I calculated the width of the sidewalk section in front of my house, I got 2.5 ft, but when I measured the width with a tape measure, it was 5 ft across.  I recorded similar numbers in front of my parents' house.  So, I created a sidewalk width metric and then, unscientifically, **doubled** it for every piece of sidewalk.  I wanted to give that data the benefit of the doubt. 
+I have some concerns about the data itself, as it is comprised of several older data sources.  When I calculated the width of the sidewalk in front of my house using the Edge of Pavement data, I got 2.5 ft, but when I measured the width with a tape measure, it was 5 ft across.  I recorded similar numbers in front of my parents' house.  So, I created a sidewalk width metric and then, unscientifically, **doubled** it for every piece of sidewalk.  I wanted to give that data the benefit of the doubt. *Update: During a quarantine walk, I spot-checked several other sections of sidewalk in my neighborhood and found the City data fairly inaccurate - doubling the widths as above brings the data in closer approximation of the real sidewalk widths.*
 
-I am not familiar enough with some of these neighborhoods to know how accurate the data is regarding the shape width, and I will defer to residents of those neighborhoods as to whether the city data is reasonable.  I did notice, for example, that South Windemere does not even have sidewalks in the traditional sense.  Driveways seem to be marked as the only sidewalks in the neighborhood, not even offering pedestrians a continuous safe place to walk from vehicular traffic.
+I am not familiar enough with all city neighborhoods to know how accurate the data is regarding the shape width.  I did notice, for example, that South Windemere does not even have sidewalks in the traditional sense.  Driveways seem to be marked as the only sidewalks in the neighborhood, not even offering pedestrians a continuous safe place to walk from vehicular traffic.
 
 ```{r calculate_distance, message=FALSE}
 pavement$area <- st_area(pavement) %>% set_units("ft2")
@@ -153,5 +155,6 @@ sidewalk_map("Byrnes Downs",width_pal)
 sidewalk_map("South Windemere", width_pal)
 
 ```
+
 
 For the forseeable future, a reasonable solution to keep Charlestonians safe is to close some neighborhood streets to vehicular traffic to allow pedestrians to walk a safe distance from one another.
