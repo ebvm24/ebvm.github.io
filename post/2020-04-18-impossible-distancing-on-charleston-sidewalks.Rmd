@@ -203,7 +203,7 @@ sidewalk_map("South Windemere", width_pal)
 For the forseeable future, a reasonable solution to keep Charlestonians safe is to close some neighborhood streets to vehicular traffic (local traffic only, perhaps) to allow pedestrians to walk a safe distance from one another.
 
 A few suggestions from the Peninsula, based on where many people exercise:  
-- East Bay Street from Broad Street to the Battery and the continuation of Murray Boulvard from the Battery to the Coast Guard Station.
+- East Bay Street from Broad Street to the Battery and the continuation of Murray Boulvard from the Battery to the Coast Guard Station.  
 - Mary Murray Drive
 
 
